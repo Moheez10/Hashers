@@ -1,3 +1,5 @@
+const prompts = require('prompts');
+
 function calculateHash() {
     // Get hash from input
     var hash = document.getElementById("hashForm").value;
@@ -21,3 +23,18 @@ function calculateHash() {
 
     alert(hash);
 }
+
+async function main() {
+    const result = await prompts({
+        type: 'text',
+        name: 'value',
+        message: 'Enter Hash: '
+
+    })
+
+    console.log(result.value)
+
+}
+
+main();
+
