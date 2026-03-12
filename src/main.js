@@ -1,27 +1,40 @@
 const prompts = require('prompts');
 
-function calculateHash() {
-    // Get hash from input
-    var hash = document.getElementById("hashForm").value;
+function checkHashLength(text) {
+    textLength = text.length
 
-    console.log(hash)
+    //  If 32 characters, remove all but MD5, NTLM (MD4), argon2
+	// - If 64 characters, it may be SHA-256
+	// - If 96 characters, it may be SHA-384
+	// - If 128 characters, it may be SHA-512
 
-    // Check if hash has non-alphanumeric characters
-    for (let index = 0; index < hash.length; index++) {
+    if (textLength == 32) {
+        return "MD5 or NTLM"
+    } else if (textLength == 64){
+        return "SHA-256"
+    } else if (textLength == 96){
+        return "SHA-384"
+    } else if (textLength == 128){
+        return "SHA-512"
+    } else {
+        return "Other"
+    }
+}
 
-        // console.log(hash[index])
+function checkHashCharacters(text) {
+    const textArr = text.split('')
 
-        if ( hash[index] in ["!?#[]*/\\$£"]) {
-            console.log("Non-Alpha Numeric Character")
+    for (let index = 0; index < textArr.length; index++) {
+        const element = textArr[index];
+
+        if (["%", "/", ".", "$"].includes(element)) {
+            return "bcrypt or argon2"
         } else {
-            console.log(hash[index])
+            return "other"
         }
         
     }
 
-    
-
-    alert(hash);
 }
 
 async function main() {
@@ -32,7 +45,9 @@ async function main() {
 
     })
 
-    console.log(result.value)
+    console.log("Hash: " + result.value)
+    console.log("Hash length: " + checkHashLength(result.value))
+    console.log("Hash characters: " + checkHashCharacters(result.value))
 
 }
 
