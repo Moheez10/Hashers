@@ -2,6 +2,9 @@ const prompts = require('prompts');
 var hashPatterns = []
 var possibleHashes = []
 
+const hashType = document.getElementById("hashType");
+const description = document.getElementById("hashDescription");
+
 function checkHashLength(text) {
     textLength = text.length
 
@@ -74,3 +77,5 @@ async function main() {
 
 main();
 
+hashType.textContent = `Type: ${type}`;
+description.textContent = desc;
