@@ -1,11 +1,8 @@
-const prompts = require('prompts');
-var hashPatterns = []
-var possibleHashes = []
 
-const hashType = document.getElementById("hashType");
-const description = document.getElementById("hashDescription");
 
-function checkHashLength(text) {
+
+
+function checkHashLength(text, hashArray, patternArray) {
     textLength = text.length
 
     //  If 32 characters, remove all but MD5, NTLM (MD4), argon2
@@ -14,68 +11,87 @@ function checkHashLength(text) {
 	// - If 128 characters, it may be SHA-512
 
     if (textLength == 32) {
-        hashPatterns.push("32 Characters long")
-        possibleHashes.push(["MD5", "NTLM"])
+        patternArray.push("32 Characters long")
+        hashArray.push(["MD5", "NTLM"])
         // return "MD5 or NTLM"
     } else if (textLength == 64){
-        hashPatterns.push("64 Characters long")
+        patternArray.push("64 Characters long")
+        hashArray.push("SHA-256")
         return "SHA-256"
     } else if (textLength == 96){
-        hashPatterns.push("96 Characters long")
+        patternArray.push("96 Characters long")
+        hashArray.push("SHA-384")
         return "SHA-384"
     } else if (textLength == 128){
-        hashPatterns.push("128 Characters long")
+        patternArray.push("128 Characters long")
+        hashArray.push("SHA-512")
         return "SHA-512"
     } else {
-        hashPatterns.push("Variable character length")
+        patternArray.push("Variable character length")
         return "Other"
     }
 }
 
-function checkHashCharacters(text) {
+function checkHashCharacters(text, hashArray, patternArray) {
     const textArr = text.split('')
 
     for (let index = 0; index < textArr.length; index++) {
         const element = textArr[index];
 
         if (["%", "/", ".", "$"].includes(element)) {
-            hashPatterns.push("Contains '% / . $' ")
+            patternArray.push("Contains '% / . $' ")
+            hashArray.push("bcrypt", "argon2")
             return "bcrypt or argon2"
         } else {
-            hashPatterns.push("Contains alphanumeric characters only")
+            patternArray.push("Contains alphanumeric characters only")
             return "other"
         }
     }
 }
 
-function checkHashPrefix(text) {
+function checkHashPrefix(text, hashArray, patternArray) {
     console.log(text.substring(0, 7))
 
     if (text.substring(0, 7)  == "$argon2") {
-        hashPatterns.push("contains prefix 'argon2' ")
+        patternArray.push("contains prefix 'argon2' ")
+        hashArray.push("argon2")
     } else {
-        hashPatterns.push("no unique prefixes found")
+        patternArray.push("no unique prefixes found")
     }
 }
 
 async function main() {
-    const result = await prompts({
-        type: 'text',
-        name: 'value',
-        message: 'Enter Hash: '
+    // const result = await prompts({
+    //     type: 'text',
+    //     name: 'value',
+    //     message: 'Enter Hash: '
 
-    })
+    // })
 
-    console.log("Hash: " + result.value)
-    console.log("Hash length: " + checkHashLength(result.value))
-    console.log("Hash characters: " + checkHashCharacters(result.value))
-    console.log("Hash Prefixes: " + checkHashPrefix(result.value))
+    // const prompts = require('prompts');
+    var hashPatterns = []
+    var possibleHashes = []
+
+    const hashType = document.getElementById("hashType");
+    const description = document.getElementById("hashDescription");
+
+    const input = document.getElementById("hashInput").value.trim();
+
+    console.log("Hash: " + input)
+    checkHashLength(input, possibleHashes, hashPatterns)
+    checkHashCharacters(input, possibleHashes, hashPatterns)
+    checkHashPrefix(input, possibleHashes, hashPatterns)
 
     console.log(possibleHashes)
     console.log(hashPatterns)
+    
+    hashType.textContent = `Type: `
+    hashType.textContent = `Type: ${possibleHashes}`;
+
+    description.textContent = ``
+    description.textContent = hashPatterns;
 }
 
 main();
 
-hashType.textContent = `Type: ${type}`;
-description.textContent = desc;
+
