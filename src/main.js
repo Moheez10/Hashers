@@ -1,3 +1,4 @@
+const { hash } = require("node:crypto")
 
 
 
@@ -38,23 +39,29 @@ function checkHashCharacters(text, hashArray, patternArray) {
     for (let index = 0; index < textArr.length; index++) {
         const element = textArr[index];
 
-        if (["%", "/", ".", "$"].includes(element)) {
-            patternArray.push("Contains '% / . $' ")
+        if (["%", "/", ".", "$", "!", ","].includes(element)) {
+            patternArray.push("Contains '% / . $ ! ,' ")
             hashArray.push("bcrypt", "argon2")
             return "bcrypt or argon2"
-        } else {
-            patternArray.push("Contains alphanumeric characters only")
-            return "other"
         }
     }
+
+    patternArray.push("Contains alphanumeric characters only")
+    return "other"
 }
 
 function checkHashPrefix(text, hashArray, patternArray) {
     console.log(text.substring(0, 7))
 
     if (text.substring(0, 7)  == "$argon2") {
+        var index = hashArray.indexOf("bcrypt");
+
+        if (index !== -1) {
+            hashArray.splice(index, 1);
+        }
+
         patternArray.push("contains prefix 'argon2' ")
-        hashArray.push("argon2")
+        // hashArray.push("argon2")
     } else {
         patternArray.push("no unique prefixes found")
     }
@@ -85,8 +92,8 @@ async function main() {
     console.log(possibleHashes)
     console.log(hashPatterns)
     
-    hashType.textContent = `Type: `
-    hashType.textContent = `Type: ${possibleHashes}`;
+    hashType.textContent = `Possible Hashes: `
+    hashType.textContent = `Possible Hashes: ${possibleHashes}`;
 
     description.textContent = ``
     description.textContent = hashPatterns;
